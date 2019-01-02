@@ -2,16 +2,15 @@
 
 from distutils.core import setup
 
-setup(name='MiniSom',
-  version= '2.1.4',
-  description='Minimalistic implementation of the Self Organizing Maps (SOM)',
-  author='Giuseppe Vettigli',
+setup(name='Midisom',
+  version= '1.0',
+  description='Extensions to the Minisom package including status bars and plotting routines',
+  author='Sebastian Ratzenböck',
   package_data={'': ['Readme.md']},
   include_package_data=True,
   license="CC BY 3.0",
-  py_modules=['minisom'],
-  requires = ['numpy'],
-  url = 'https://github.com/JustGlowing/minisom',
-  download_url = 'https://github.com/JustGlowing/minisom/archive/master.zip',
+  py_modules=['midisom'],
+  requires = ['matplotlib','numpy'],
+  url = 'https://github.com/ratzenboe/midisom',
   keywords = ['machine learning', 'neural networks', 'clustering', 'dimentionality reduction']
  )
