@@ -10,7 +10,7 @@ setup(name='Midisom',
   include_package_data=True,
   license="CC BY 3.0",
   py_modules=['midisom'],
-  requires = ['tqdm','matplotlib','numpy'],
+  requires = ['pandas','tqdm','matplotlib','numpy'],
   url = 'https://github.com/ratzenboe/midisom',
   keywords = ['machine learning', 'neural networks', 'clustering', 'dimentionality reduction']
  )

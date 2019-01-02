@@ -1,9 +1,11 @@
 from math import sqrt
 
 # needed dependencies
+import numpy as np
 from numpy import (array, unravel_index, nditer, linalg, random, subtract,
                    power, exp, pi, zeros, arange, outer, meshgrid, dot,
                    logical_and, mean, std, cov, argsort, linspace, transpose)
+import pandas as pd
 from matplotlib import pyplot as plt
 from tqdm import tqdm
 
@@ -17,7 +19,7 @@ from numpy.testing import assert_array_equal
 import unittest
 
 """
-    Minimalistic implementation of the Self Organizing Maps (SOM).
+    Extension to the MiniSom package by Giuseppe Vettigli (https://github.com/JustGlowing/minisom)
 """
 
 
@@ -198,11 +200,22 @@ class MidiSom(object):
 
     def _check_input_len(self, data):
         """Checks that the data in input is of the correct shape."""
+        data = self._check_input_data(data)
         data_len = len(data[0])
         if self._input_len != data_len:
             msg = 'Received %d features, expected %d.' % (data_len,
                                                           self._input_len)
             raise ValueError(msg)
+
+    def _check_input_data(self, data):
+        """Checks if the input type is correct"""
+        if isinstance(data, (pd.DataFrame, pd.Series)):
+            return data.values
+        elif isinstance(data, np.ndarray):
+            return data
+        else:
+            raise TypeError('Data type has to be DataFrame or Numpy ndarray instead of ' \
+                    '{}'.format(type(data)))
 
     def winner(self, x):
         """Computes the coordinates of the winning neuron for the sample x"""
@@ -243,6 +256,7 @@ class MidiSom(object):
     def quantization(self, data):
         """Assigns a code book (weights vector of the winning neuron)
         to each sample in data."""
+        data = self._check_input_data(data)
         self._check_input_len(data)
         q = zeros(data.shape)
         for i, x in enumerate(data):
@@ -252,6 +266,7 @@ class MidiSom(object):
     def random_weights_init(self, data):
         """Initializes the weights of the SOM
         picking random samples from data"""
+        data = self._check_input_data(data)
         self._check_input_len(data)
         it = nditer(self._activation_map, flags=['multi_index'])
         while not it.finished:
@@ -270,6 +285,7 @@ class MidiSom(object):
         It is strongly reccomended to normalize the data before initializing
         the weights and use the same normalization for the training data.
         """
+        data = self._check_input_data(data)
         if self._input_len == 1:
             msg = 'The data needs at least 2 features for pca initialization'
             raise ValueError(msg)
@@ -286,6 +302,7 @@ class MidiSom(object):
 
     def train_random(self, data, num_iteration):
         """Trains the SOM picking samples at random from data"""
+        data = self._check_input_data(data)
         self._check_iteration_number(num_iteration)
         self._check_input_len(data)
 
@@ -297,6 +314,7 @@ class MidiSom(object):
 
     def train_batch(self, data, num_iteration):
         """Trains using all the vectors in data sequentially"""
+        data = self._check_input_data(data)
         self._check_iteration_number(num_iteration)
         self._check_input_len(data)
         for iteration in tqdm(range(num_iteration)):
@@ -305,24 +323,24 @@ class MidiSom(object):
                         iteration, num_iteration)
 
     # train the som with quantization error information
-    def train_som_error(self, df_data, init=True, rand=True, err_update=1000)
+    def train_error(self, df_data, init=True, rand=True, err_update=1000):
         # initialize if needed
-        self._check_input_len(df_data.values)
+        self._check_input_len(df_data)
         if init:
             if rand:
-                self.random_weights_init(df_data.values)
+                self.random_weights_init(df_data)
             else:
-                self.pca_weights_init(df_data.values)
-        q_error_pca_init = []
+                self.pca_weights_init(df_data)
+        q_error = []
         iter_x = []
         for i in tqdm(range(df_data.shape[0])):
             self.update(df_data.iloc[i].values,
                         self.winner(df_data.iloc[i].values), i, df_data.shape[0])
             if (i+1) % err_update == 0:
                 error = self.quantization_error(df_data.values)
-                q_error_pca_init.append(error)
+                q_error.append(error)
                 iter_x.append(i)
-        return q_error_pca_init, iter_x
+        return q_error, iter_x
 
     def distance_map(self):
         """Returns the distance map of the weights.
@@ -374,6 +392,7 @@ class MidiSom(object):
             Returns a matrix where the element i,j is the number of times
             that the neuron i,j have been winner.
         """
+        data = self._check_input_data(data)
         self._check_input_len(data)
         a = zeros((self._weights.shape[0], self._weights.shape[1]))
         for x in data:
@@ -383,7 +402,7 @@ class MidiSom(object):
     def plot_activation_response(self, df_data, target,
             figsize=(12,10), n_samples=0, outfile=None,
             markers=['o','s','v','p','*'], colors=['r','y','b','darkviolet','m']):
-        act_resp = self.activation_response(data=df_data.values)
+        act_resp = self.activation_response(data=df_data)
         plt.figure(figsize=figsize)
         plt.pcolor(act_resp, cmap='Greys')
         plt.colorbar(shrink=0.9)
@@ -411,6 +430,7 @@ class MidiSom(object):
     def quantization_error(self, data):
         """Returns the quantization error computed as the average
         distance between each input sample and its best matching unit."""
+        data = self._check_input_data(data)
         self._check_input_len(data)
         error = 0
         for x in data:
@@ -420,6 +440,7 @@ class MidiSom(object):
     def win_map(self, data):
         """Returns a dictionary wm where wm[(i,j)] is a list
         with all the patterns that have been mapped in the position i,j."""
+        data = self._check_input_data(data)
         self._check_input_len(data)
         winmap = defaultdict(list)
         for x in data:
@@ -437,6 +458,7 @@ class MidiSom(object):
 
         label : list or array that contains the label of each sample in data.
         """
+        data = self._check_input_data(data)
         self._check_input_len(data)
         winmap = defaultdict(list)
         for x, l in zip(data, labels):
@@ -448,7 +470,7 @@ class MidiSom(object):
     def plot_label_map(self, df_data, labels, figsize=(10,10), outfile=None):
         from matplotlib.gridspec import GridSpec
         shift = self._weights.shape[1]-1
-        labels_map = self.labels_map(df_data.values, labels)
+        labels_map = self.labels_map(df_data, labels)
         label_names = np.unique(labels)
         plt.figure(figsize=figsize)
         the_grid = GridSpec(self._weights.shape[0], self._weights.shape[1])
@@ -489,6 +511,26 @@ class MidiSom(object):
         #plt.tight_layout()
         if isinstance(outfile, str):
             plt.savefig(outfile, bbox_extra_artists=(leg,), bbox_inches='tight')
+
+
+def plot_feat_dist(self, df_data, figsize=(25,20), subplot_shape=(6,6), outfile=None):
+    W = self.get_weights()
+    plt.figure(figsize=figsize)
+    df_data.shape[-1]
+    assert subplot_shape[0]*subplot_shape[1] > df_data.shape[-1], 'subplot grid too small!'
+    for i, f in enumerate(tqdm(df_data.columns)):
+        plt.subplot(subplot_shape[0], subplot_shape[1], i+1)
+        plt.title(f)
+        plt.pcolor(W[:,:,i].T, cmap='coolwarm')
+        plt.colorbar()
+        #plt.xticks(np.arange(size+1))
+        plt.tick_params(axis='both', which='both',
+                        bottom=False,top=False,labelbottom=False,
+                        left=False, right=False, labelleft=False)
+    plt.tight_layout()
+    if isinstance(outfile, str):
+        plt.savefig(outfile)
+
 
 class TestMidisom(unittest.TestCase):
     def setUp(self):
