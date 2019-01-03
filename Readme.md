@@ -47,8 +47,10 @@ som.plot_label_map(df_data, target)
 # Plotting activation response (count where the most instances lie)
 som.plot_activation_response(df_data, target, n_samples=-1) # for unsupervised: target=None
 ```
-## Licence 
+## License 
 Midisom builds upon the Minisom package developed by Giuseppe Vettigli which is licensed under the Creative Commons Attribution 3.0 Unported License. 
-Therefore, the use of the Midisom package also falls under the same terms of use, do not fall short to give credit to Giuseppe Vettigli if you use this software!
-To view a copy of this license, visit http://creativecommons.org/licenses/by/3.0/.
+Therefore, the use of the Midisom package also falls under the same terms of use. Do not fall short to give credit to Giuseppe Vettigli if you use this software!  
+
+To view a copy of this license, visit the [creative commons license home page](http://creativecommons.org/licenses/by/3.0/).
+
 ![License]( http://i.creativecommons.org/l/by/3.0/88x31.png "Creative Commons Attribution 3.0 Unported License")
