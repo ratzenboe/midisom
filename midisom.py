@@ -513,23 +513,23 @@ class MidiSom(object):
             plt.savefig(outfile, bbox_extra_artists=(leg,), bbox_inches='tight')
 
 
-def plot_feat_dist(self, df_data, figsize=(25,20), subplot_shape=(6,6), outfile=None):
-    W = self.get_weights()
-    plt.figure(figsize=figsize)
-    df_data.shape[-1]
-    assert subplot_shape[0]*subplot_shape[1] > df_data.shape[-1], 'subplot grid too small!'
-    for i, f in enumerate(tqdm(df_data.columns)):
-        plt.subplot(subplot_shape[0], subplot_shape[1], i+1)
-        plt.title(f)
-        plt.pcolor(W[:,:,i].T, cmap='coolwarm')
-        plt.colorbar()
-        #plt.xticks(np.arange(size+1))
-        plt.tick_params(axis='both', which='both',
-                        bottom=False,top=False,labelbottom=False,
-                        left=False, right=False, labelleft=False)
-    plt.tight_layout()
-    if isinstance(outfile, str):
-        plt.savefig(outfile)
+    def plot_feat_dist(self, df_data, figsize=(25,20), subplot_shape=(6,6), outfile=None):
+        W = self.get_weights()
+        plt.figure(figsize=figsize)
+        df_data.shape[-1]
+        assert subplot_shape[0]*subplot_shape[1] > df_data.shape[-1], 'subplot grid too small!'
+        for i, f in enumerate(tqdm(df_data.columns)):
+            plt.subplot(subplot_shape[0], subplot_shape[1], i+1)
+            plt.title(f)
+            plt.pcolor(W[:,:,i].T, cmap='coolwarm')
+            plt.colorbar()
+            #plt.xticks(np.arange(size+1))
+            plt.tick_params(axis='both', which='both',
+                            bottom=False,top=False,labelbottom=False,
+                            left=False, right=False, labelleft=False)
+        plt.tight_layout()
+        if isinstance(outfile, str):
+            plt.savefig(outfile)
 
 
 class TestMidisom(unittest.TestCase):
