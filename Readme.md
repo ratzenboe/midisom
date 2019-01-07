@@ -13,7 +13,7 @@ Installation
 
 Download MidiSom to a directory of your choice via
 ```
-  git clone https://github.com/ratzenboe/midisom
+  git clone https://github.com/ratzenboe/midisom.git
 ```
 change into the created directory and execute the setup script
 
